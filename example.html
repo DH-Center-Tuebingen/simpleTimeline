@@ -1,0 +1,100 @@
+﻿<!doctype html>
+<html>
+	<head>
+		<link rel="stylesheet" href="simpleTimeline.css" />
+		<script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+		<script src="resize.js"></script>
+		<script src="simpleTimeline.js"></script>
+		
+		<style>
+			#timeline {
+				width: 100%;
+				overflow-x: auto;
+				overflow-y: hidden;
+				border: 1px solid dimgray;
+				box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.75);
+			}
+			
+			#timeline .selected	{
+				font-weight: bold;
+				box-shadow: 0px 0px 3px 1px gray;
+			}
+			
+			.styleA {
+				color: darkgreen;
+				background-color: lightgreen;
+			}
+			
+			.styleB {
+				color: darkred;
+				background-color: mistyrose;
+			}
+			
+			.styleC {
+				color: darkblue;
+				background-color: lightblue;
+			}
+			
+			.timeline-unused-phase {
+				background: repeating-linear-gradient(
+					-45deg,
+					rgba(255,255,255,0.85),
+					rgba(255,255,255,0.85) 10px,
+					rgba(235,235,235,0.85) 10px,
+					rgba(235,235,235,0.85) 20px
+				);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="timeline"></div>
+		
+		<script>
+			$(document).ready(timeline_init);
+			
+			function timeline_init() {
+				var options = {
+					phases: [
+						{ start: -50000, end: -30000, indicatorsEvery: 20000, share: .2 },
+						{ start: -30000, end: -5000, indicatorsEvery: 25000, share: .07, className: 'timeline-unused-phase' },
+						{ start: -5000, end: 2000, indicatorsEvery: 1000, share: .73 }
+					],
+					formatHeader: function (v) {
+						if(v < 0) return -v + ' BC';
+						if(v > 0) return v + ' AD';
+						return 'AD';
+					},
+					toggle: false,
+					barHeight: 25,
+					fontSize: 16
+				};
+				
+				var data = [
+					[{ id: 'Dingo', start: -50000, end: -32000, className: 'styleA' },
+					 { id: 'Ringo', start: -3000, end: 0, className: 'styleA' }],
+					 
+					[{ id: 'Looong', start: -42000, end: -1492, className: 'styleB' },
+					 { id: 'Hoko', start: -980, end: -332, className: 'styleB' }],
+					
+					[{ id: 'Wunz', start: -4700, end: -2000, className: 'styleC' },
+					 { id: 'Inzi', start: -2000, end: -1000, className: 'styleC' },
+					 { id: 'Misi', start: -2000, end: 1500, className: 'styleC' }]
+				];
+				
+				$('#timeline').simpleTimeline(options, data)
+					.on('timeline:barclick', timeline_clicked);
+			}
+				
+			function timeline_clicked(e) {
+				var clicked_item = $(e.target);
+				console.log(clicked_item.data('id') + " was clicked");
+				
+				var sel = $('.selected');
+				sel.removeClass('selected');
+				
+				if(sel.length == 0 || sel.data('id') != clicked_item.data('id')) 
+					clicked_item.addClass('selected');
+			}
+		</script>
+	</body>
+</html>
