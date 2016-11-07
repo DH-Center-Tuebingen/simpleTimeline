@@ -1,0 +1,53 @@
+.timeline-box {		
+	position: relative;	
+}
+
+.timeline-phase {
+	position: absolute;		
+}
+
+.timeline-indicator-line {
+	position: absolute;
+	border-left: 1px dashed dimgray;
+}
+
+.timeline-phase-header {
+	position: absolute;
+	font-size: smaller;
+	white-space: nowrap;	
+	color: dimgray;
+}
+
+.timeline-bar {
+	position: absolute;
+	text-align: center;	
+	border-style: solid;
+	cursor: pointer;
+	border-radius: 7px;	
+}
+
+#timeline-collapse {
+	cursor: pointer;
+	font-size: 20px;
+	line-height: 20px;
+	position: absolute;
+	padding: 0 1px;
+	bottom: 2px;
+	right: 2px;
+	background-color: rgba(235,235,235,.8);
+	border-radius: 2px;	
+}
+
+#timeline-expand {
+	display: none;
+	cursor: pointer;
+	font-size: 20px;
+	line-height: 20px;
+	position: fixed;
+	padding: 0 1px;
+	bottom: 12px;
+	right: 12px;
+	background-color: rgba(235,235,235,.8);
+	border-radius: 2px;	
+	z-index: 10001;
+}
