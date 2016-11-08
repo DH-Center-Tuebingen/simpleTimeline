@@ -1,4 +1,4 @@
-.timeline-box {		
+﻿.timeline-box {		
 	position: relative;	
 }
 
@@ -26,28 +26,37 @@
 	border-radius: 7px;	
 }
 
-#timeline-collapse {
+#timeline-collapse {	
+	content: "X";
 	cursor: pointer;
 	font-size: 20px;
 	line-height: 20px;
 	position: absolute;
 	padding: 0 1px;
-	bottom: 2px;
+	top: 2px;
 	right: 2px;
 	background-color: rgba(235,235,235,.8);
 	border-radius: 2px;	
+	z-index: 10001;
 }
 
-#timeline-expand {
-	display: none;
+#timeline-collapse:before {
+	content: "▲";
+}
+
+#timeline-expand {	
 	cursor: pointer;
 	font-size: 20px;
 	line-height: 20px;
-	position: fixed;
-	padding: 0 1px;
-	bottom: 12px;
-	right: 12px;
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	padding: 0 1px;	
 	background-color: rgba(235,235,235,.8);
 	border-radius: 2px;	
 	z-index: 10001;
+}
+
+#timeline-expand:before {	
+	content: "▼";	
 }

@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 	<head>
 		<link rel="stylesheet" href="simpleTimeline.css" />
@@ -8,7 +8,8 @@
 		
 		<style>
 			#timeline {
-				width: 100%;
+				position: relative;
+				max-width: 100%;
 				overflow-x: auto;
 				overflow-y: hidden;
 				border: 1px solid dimgray;
@@ -44,12 +45,22 @@
 					rgba(235,235,235,0.85) 20px
 				);
 			}
+			
+			/* NOTE: YOU MIGHT ALSO NEED TO ADAPT THE COLLAPSE/EXPAND TOGGLE POSITIONS IN simpleTimeline.css
 		</style>
 	</head>
-	<body>
+	<body>		
 		<div id="timeline"></div>
 		
+		<p>Play with the timeline:</p>
+		<ul>
+			<li>Click the items in the timeline. <span id='clicked-item'></span></li>
+			<li><a href="#" onclick="add_item()">Add an item</a></li>
+			<li><a href="#" onclick="remove_selected_item()">Remove selected item</a></li>
+		</ul>
+		
 		<script>
+			var timeline;
 			$(document).ready(timeline_init);
 			
 			function timeline_init() {
@@ -64,7 +75,7 @@
 						if(v > 0) return v + ' AD';
 						return 'AD';
 					},
-					toggle: false,
+					//toggle: false,
 					barHeight: 25,
 					fontSize: 16
 				};
@@ -76,24 +87,59 @@
 					[{ id: 'Looong', start: -42000, end: -1492, className: 'styleB' },
 					 { id: 'Hoko', start: -980, end: -332, className: 'styleB' }],
 					
+					[{ id: 'Lonely', start: -3500, end: 733, className: 'styleB' }],
+					
 					[{ id: 'Wunz', start: -4700, end: -2000, className: 'styleC' },
 					 { id: 'Inzi', start: -2000, end: -1000, className: 'styleC' },
 					 { id: 'Misi', start: -2000, end: 1500, className: 'styleC' }]
 				];
 				
-				$('#timeline').simpleTimeline(options, data)
-					.on('timeline:barclick', timeline_clicked);
+				timeline = $('#timeline');
+				timeline.simpleTimeline(options, data);
+				timeline.on('timeline:barclick', timeline_clicked);
 			}
 				
 			function timeline_clicked(e) {
 				var clicked_item = $(e.target);
-				console.log(clicked_item.data('id') + " was clicked");
 				
 				var sel = $('.selected');
 				sel.removeClass('selected');
+				$('#clicked-item').empty();
 				
-				if(sel.length == 0 || sel.data('id') != clicked_item.data('id')) 
+				if(sel.length == 0 || sel.data('id') != clicked_item.data('id')) {
 					clicked_item.addClass('selected');
+					$('#clicked-item').text("You clicked " + clicked_item.data('id'));
+				}					
+			}
+			
+			function add_item() {
+				var data = timeline.getTimelineData();
+				data.push([
+					{
+						id: 'New One', 
+						start: -1978, 
+						end: 1978, 
+						className: 'styleA' 
+					}
+				]);
+				timeline.setTimelineData(data).refreshTimeline();
+			}
+			
+			function remove_selected_item() {
+				var sel_item_id = $('.selected').data('id');
+				var data = timeline.getTimelineData();
+				for(var l = 0; l < data.length; l++) {
+					for(var i = 0; i < data[l].length; i++) {
+						if(data[l][i].id == sel_item_id) {
+							data[l].splice(i,1);
+							if(data[l].length == 0)
+								data.splice(l,1);
+							timeline.setTimelineData(data).refreshTimeline();
+							return;
+						}
+					}
+				}
+					
 			}
 		</script>
 	</body>
