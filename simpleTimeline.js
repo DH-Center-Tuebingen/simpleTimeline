@@ -67,6 +67,14 @@
 		this.setTimelineData = function(data) {
 		// -------------------------------------------------------------------------------
 			this._timelineData = data;
+			return this;
+		};
+		
+		// -------------------------------------------------------------------------------
+		// call refreshTimeline() afterwards
+		this.getTimelineData = function() {
+		// -------------------------------------------------------------------------------
+			return this._timelineData;
 		};
 		
 		// -------------------------------------------------------------------------------
@@ -88,6 +96,7 @@
 					expandTooltip: 'Expand Timeline'
 				}
 			}, options);
+			return this;
 		}
 		
 		// -------------------------------------------------------------------------------
@@ -137,17 +146,6 @@
 		// -------------------------------------------------------------------------------
 			this._storeTimelineBarVisibilities();
 
-			$('#timeline-expand').remove();
-			if(typeof this._timelineOptions.toggle === 'object') {
-				this.parent().append(
-					$('<span/>')
-						.text('⇱')
-						.attr('id', 'timeline-expand')
-						.attr('title', this._timelineOptions.toggle.expandTooltip)
-						.on('click', self._onTimelineExpand)
-				);
-			}
-			
 			this._timelineBars = {};
 			this._timelineBox.empty();
 			
@@ -159,17 +157,8 @@
 			this._drawTimelinePhases();	
 			this._drawTimelineBars();
 			
-			if(typeof this._timelineOptions.toggle === 'object') {
-				this.append(
-					$('<span/>')
-						.html('⇲')
-						.attr('id', 'timeline-collapse')
-						.attr('title', this._timelineOptions.toggle.collapseTooltip)
-						.on('click', this._onTimelineCollapse)
-				);
-			}
-			
 			this.resumeOverflow(oldOverflow);
+			return this;
 		}
 		
 		// -------------------------------------------------------------------------------
@@ -187,6 +176,8 @@
 		// -------------------------------------------------------------------------------
 			if(oldOverflow != 'hidden')
 				this.css({ overflow: oldOverflow });
+			
+			return this;
 		}
 		
 		// -------------------------------------------------------------------------------
@@ -198,13 +189,32 @@
 		// -------------------------------------------------------------------------------
 			this.empty()
 			
-			this._timelineBox = $('<div/>')
-				.addClass('timeline-box')
-				.css({ margin: this._timelineOptions.boxMargin + 'px ' + this._timelineOptions.boxMargin + 'px' });
+			this._timelineBox = $('<div/>').addClass('timeline-box').css({ 
+				margin: this._timelineOptions.boxMargin + 'px ' + this._timelineOptions.boxMargin + 'px' 
+			});
 			
-			this.append(this._timelineBox)
-				.deferredResize(this._onContainerResize, 300)
-				._onContainerResize();
+			this.append(this._timelineBox);
+			
+			if(typeof this._timelineOptions.toggle === 'object') {
+				// expand toggle is sibling of timeline container!
+				this.parent().append($('<span/>')					
+					.attr('id', 'timeline-expand')
+					.attr('title', this._timelineOptions.toggle.expandTooltip)
+					.on('click', self._onTimelineExpand)
+					.hide()
+				);
+				
+				// collapse toggle is child of the timeline container
+				this.append($('<span/>')					
+					.attr('id', 'timeline-collapse')
+					.attr('title', this._timelineOptions.toggle.collapseTooltip)
+					.on('click', this._onTimelineCollapse)
+					.show()
+				);
+			}
+			
+			this.deferredResize(this._onContainerResize, 300);
+			this._onContainerResize();
 		}
 		
 		// -------------------------------------------------------------------------------
@@ -415,16 +425,17 @@
 			if(!self.is(':visible'))
 				return;
 			
-			var newWidth = Math.max(self.width() - 2 * self._timelineOptions.boxMargin, self._timelineOptions.minWidth);
-			if(self._prevWidth === newWidth)
+			var newWidth = Math.max(self.width() - 2 * self._timelineOptions.boxMargin, self._timelineOptions.minWidth);			
+			if(self._prevWidth == newWidth)
 				return;
 			
-			self._timelineBox.width(
-				(self._prevWidth = newWidth) 
-				- (self._timelineOptions.toggle ? 17 : 0) // leave space for toggle icon
+			self._prevWidth = newWidth;
+			
+			self._timelineBox.width(							
+				 newWidth - (self._timelineOptions.toggle ? $('#timeline-collapse').outerWidth() : 0)
 			);
 			
-			self.refreshTimeline();
+			self.refreshTimeline();						
 		}
 		
 		// -------------------------------------------------------------------------------
@@ -432,12 +443,14 @@
 		// -------------------------------------------------------------------------------
 			self.fadeOut();
 			$('#timeline-expand').fadeIn();
+			$('#timeline-collapse').hide();
 		}
 		
 		// -------------------------------------------------------------------------------
 		this._onTimelineExpand = function(e) {
 		// -------------------------------------------------------------------------------
-			$('#timeline-expand').fadeOut();
+			$('#timeline-expand').hide();
+			$('#timeline-collapse').fadeIn();
 			self.fadeIn();
 			self._onContainerResize();
 		}
