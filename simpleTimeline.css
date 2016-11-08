@@ -1,4 +1,4 @@
-﻿.timeline-box {		
+.timeline-box {		
 	position: relative;	
 }
 
@@ -27,7 +27,6 @@
 }
 
 #timeline-collapse {	
-	content: "X";
 	cursor: pointer;
 	font-size: 20px;
 	line-height: 20px;
@@ -41,7 +40,7 @@
 }
 
 #timeline-collapse:before {
-	content: "▲";
+	content: "\25b2";
 }
 
 #timeline-expand {	
@@ -58,5 +57,5 @@
 }
 
 #timeline-expand:before {	
-	content: "▼";	
+	content: "\25bc";	
 }
