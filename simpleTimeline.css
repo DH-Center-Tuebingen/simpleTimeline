@@ -32,8 +32,8 @@
 	line-height: 20px;
 	position: absolute;
 	padding: 0 1px;
-	top: 2px;
-	right: 2px;
+	top: 12px;
+	right: 12px;
 	background-color: rgba(235,235,235,.8);
 	border-radius: 2px;	
 	z-index: 10001;

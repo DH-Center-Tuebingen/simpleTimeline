@@ -196,16 +196,13 @@
 			this.append(this._timelineBox);
 			
 			if(typeof this._timelineOptions.toggle === 'object') {
-				// expand toggle is sibling of timeline container!
+				// toggles are siblings of timeline container!
 				this.parent().append($('<span/>')					
 					.attr('id', 'timeline-expand')
 					.attr('title', this._timelineOptions.toggle.expandTooltip)
 					.on('click', self._onTimelineExpand)
 					.hide()
-				);
-				
-				// collapse toggle is child of the timeline container
-				this.append($('<span/>')					
+				).append($('<span/>')					
 					.attr('id', 'timeline-collapse')
 					.attr('title', this._timelineOptions.toggle.collapseTooltip)
 					.on('click', this._onTimelineCollapse)
