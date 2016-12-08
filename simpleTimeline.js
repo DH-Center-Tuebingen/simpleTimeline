@@ -181,6 +181,29 @@
 		}
 		
 		// -------------------------------------------------------------------------------
+		this.bindPopup = function(id, html) {
+		// -------------------------------------------------------------------------------			
+			var bar = this.getTimelineBar(id);
+			if(id === null)
+				return this;
+			bar.data('popup_html', html);
+			return this;
+		}
+		
+		// -------------------------------------------------------------------------------
+		this.closePopup = function() {
+		// -------------------------------------------------------------------------------
+			var cur_popup = $('.timeline-popup');
+			if(cur_popup.length > 0) {
+				var closing_bar = self.getTimelineBar(cur_popup.data('id'));
+				self.trigger('timeline:popup-closing', [ cur_popup, closing_bar ]);
+				cur_popup.remove();
+				self.trigger('timeline:popup-closed', [ closing_bar ]);
+			}
+			return this;
+		}
+		
+		// -------------------------------------------------------------------------------
 		// INTERNAL METHODS
 		// -------------------------------------------------------------------------------
 		
@@ -314,8 +337,8 @@
 					if(typeof datum.className !== 'undefined')
 						barDiv.addClass(datum.className);
 					
-					barDiv.on('click', function() {
-						$(this).trigger('timeline:barclick');
+					barDiv.on('click', function(e) {
+						$(this).trigger('timeline:barclick', [ e ]);
 					});
 					
 					this._timelineBars[datum.id] = barDiv;
@@ -451,6 +474,49 @@
 			self.fadeIn();
 			self._onContainerResize();
 		}
+		
+		// -------------------------------------------------------------------------------
+		this._onBarClick = function(e, orig_event) {
+		// -------------------------------------------------------------------------------
+			console.log(e);
+			self.closePopup();
+			
+			var bar = $(e.target);
+			var html = bar.data('popup_html');
+			if(typeof html === 'undefined') 
+				return;
+			
+			// create popup window
+			var popup = $('<div/>').addClass('timeline-popup').data('id', bar.data('id'));
+			popup.append(
+				$('<a/>').addClass('timeline-popup-close-button').attr('href', 'javascript:void(0)').text('\u00d7').click(function() {
+					self.closePopup();
+				})
+			).append(
+				$('<div/>').addClass('timeline-popup-content-wrapper').append(
+					$('<div/>').addClass('timeline-popup-content').html(html)
+				)
+			).append(
+				$('<div/>').addClass('timeline-popup-tip-container').append(
+					$('<div/>').addClass('timeline-popup-tip')
+				)
+			);
+			
+			$('body').append(popup);
+			
+			var pos = {				
+      			top: orig_event.pageY - popup.outerHeight() + 5, 
+      			left: orig_event.pageX - popup.outerWidth() / 2 // + 3
+			};			
+			popup.css(pos);
+			
+			// trigger an event to celebrate the open popup
+			self.trigger('timeline:popup-open', [
+				orig_event, // 1st extra param: original jQuery click event
+				popup, 		// 2nd extra param: the popup div object
+				bar 		// 3rd extra param: the bar div object that was clicked
+			]);
+		}
 				
 		// -------------------------------------------------------------------------------
 		// INITIALIZATION		
@@ -459,6 +525,7 @@
 		this.setTimelineOptions(options);
 		this.setTimelineData(data);
 		this._initializeTimeline();
+		this.on('timeline:barclick', this._onBarClick);		
 		
 		return this; 
     }; 
