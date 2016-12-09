@@ -66,7 +66,12 @@
 		// call refreshTimeline() afterwards
 		this.setTimelineData = function(data) {
 		// -------------------------------------------------------------------------------
-			this._timelineData = data;
+			this._timelineData = data;			
+			var dataMap = {}; // an id-data map for faster access
+			for(var i = data.length - 1; i >= 0 ; i--)
+				for(var d = data[i], j = d.length - 1; j >= 0; j--)
+					dataMap[d[j].id] = d[j];			
+			this._dataMap = dataMap;
 			return this;
 		};
 		
@@ -129,7 +134,7 @@
 		this.selectTimelineBar = function(bar) {
 		// -------------------------------------------------------------------------------
 			if(typeof bar === 'string')
-				bar = $('.timeline-bar[data-id="'+ bar +'"]');
+				bar = this.getTimelineBar(bar); 
 						
 			if(this._selectedBar && this._selectedBar.data('id') === bar.data('id'))
 				return this;
@@ -177,6 +182,26 @@
 			if(oldOverflow != 'hidden')
 				this.css({ overflow: oldOverflow });
 			
+			return this;
+		}
+		
+		// -------------------------------------------------------------------------------
+		this.bindPopup = function(id, html) {
+		// -------------------------------------------------------------------------------			
+			this._dataMap[id].popup_html = html;
+			return this;
+		}
+		
+		// -------------------------------------------------------------------------------
+		this.closePopup = function() {
+		// -------------------------------------------------------------------------------
+			var cur_popup = $('.timeline-popup');
+			if(cur_popup.length > 0) {
+				var closing_bar = self.getTimelineBar(cur_popup.data('id'));
+				self.trigger('timeline:popup-closing', [ cur_popup, closing_bar ]);
+				cur_popup.remove();
+				self.trigger('timeline:popup-closed', [ closing_bar ]);
+			}
 			return this;
 		}
 		
@@ -314,11 +339,11 @@
 					if(typeof datum.className !== 'undefined')
 						barDiv.addClass(datum.className);
 					
-					barDiv.on('click', function() {
-						$(this).trigger('timeline:barclick');
-					});
-					
 					this._timelineBars[datum.id] = barDiv;
+					
+					barDiv.on('click', function(e) {
+						$(this).trigger('timeline:barclick', [ e ]);
+					});
 				}	
 			}
 			
@@ -451,6 +476,54 @@
 			self.fadeIn();
 			self._onContainerResize();
 		}
+		
+		// -------------------------------------------------------------------------------
+		this._onBarClick = function(e, orig_event) {
+		// -------------------------------------------------------------------------------
+			self.closePopup();			
+			var bar = $(e.target);
+			var clicked_data = self._dataMap[bar.data('id')];
+			if(typeof clicked_data === 'undefined' || typeof clicked_data['popup_html'] === 'undefined' || clicked_data['popup_html'] === '') 
+				return;
+			
+			// create popup window
+			var popup = $('<div/>').addClass('timeline-popup').data('id', bar.data('id'));
+			popup.append(
+				$('<a/>').addClass('timeline-popup-close-button').attr('href', 'javascript:void(0)').text('\u00d7').click(function() {
+					self.closePopup();
+				})
+			).append(
+				$('<div/>').addClass('timeline-popup-content-wrapper').append(
+					$('<div/>').addClass('timeline-popup-content').html(clicked_data.popup_html)
+				)
+			).append(
+				$('<div/>').addClass('timeline-popup-tip-container').append(
+					$('<div/>').addClass('timeline-popup-tip')
+				)
+			);
+			
+			// show and position at mouse pointer
+			$('body').append(popup);
+			var pos = {				
+      			top: orig_event.pageY - popup.outerHeight() + 5, 
+      			left: orig_event.pageX - popup.outerWidth() / 2 // + 3
+			};
+			pos.top = Math.max(0, pos.top);
+			
+			if(pos.left < 0) {
+				popup.find('.timeline-popup-tip-container').css({ 'margin-left': orig_event.pageX - 19 });
+				pos.left = 0;
+			}
+			
+			popup.css(pos);
+			
+			// trigger an event to celebrate the opened popup
+			self.trigger('timeline:popup-open', [
+				orig_event, // 1st extra param: original jQuery click event
+				popup, 		// 2nd extra param: the popup div object
+				bar 		// 3rd extra param: the bar div object that was clicked
+			]);
+		}
 				
 		// -------------------------------------------------------------------------------
 		// INITIALIZATION		
@@ -459,6 +532,7 @@
 		this.setTimelineOptions(options);
 		this.setTimelineData(data);
 		this._initializeTimeline();
+		this.on('timeline:barclick', this._onBarClick);		
 		
 		return this; 
     }; 
