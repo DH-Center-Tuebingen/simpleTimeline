@@ -9,6 +9,7 @@
 		<style>
 			#timeline {
 				position: relative;
+				margin-top: 350px;
 				max-width: 100%;
 				overflow-x: auto;
 				overflow-y: hidden;
@@ -19,6 +20,10 @@
 			#timeline .selected	{
 				font-weight: bold;
 				box-shadow: 0px 0px 3px 1px gray;
+			}
+			
+			#timeline-collapse {
+				top: 355px
 			}
 			
 			.styleA {
@@ -55,6 +60,7 @@
 		<p>Play with the timeline:</p>
 		<ul>
 			<li>Click the items in the timeline. <span id='clicked-item'></span></li>
+			<li><a href="#" onclick="bind_popup()">Attach popup text to selected item</a></li>
 			<li><a href="#" onclick="add_item()">Add an item</a></li>
 			<li><a href="#" onclick="remove_selected_item()">Remove selected item</a></li>
 		</ul>
@@ -79,6 +85,7 @@
 					fontSize: 16
 				};
 				
+				// note: item 'Lonely' has a popup text attached
 				var data = [
 					[{ id: 'Dingo', start: -50000, end: -32000, className: 'styleA' },
 					 { id: 'Ringo', start: -3000, end: 0, className: 'styleA' }],
@@ -86,7 +93,7 @@
 					[{ id: 'Looong', start: -42000, end: -1492, className: 'styleB' },
 					 { id: 'Hoko', start: -980, end: -332, className: 'styleB' }],
 					
-					[{ id: 'Lonely', start: -3500, end: 733, className: 'styleB' }],
+					[{ id: 'Lonely', start: -3500, end: 733, className: 'styleB', popup_html: 'I am <b>really, really</b> lonely!' }],
 					
 					[{ id: 'Wunz', start: -4700, end: -2000, className: 'styleC' },
 					 { id: 'Inzi', start: -2000, end: -1000, className: 'styleC' },
@@ -137,8 +144,17 @@
 							return;
 						}
 					}
+				}					
+			}
+			
+			function bind_popup() {
+				var sel_item_id = $('.selected').data('id');
+				if(typeof sel_item_id == 'undefined') {
+					alert('Ain\'t nothin\' selected, yo!');
+					return;
 				}
-					
+				
+				timeline.bindPopup(sel_item_id, '<p><b>Yo it\'s great</b></p><p>Lorem ipsum dolizzle da bomb da bomb, consectetuer adipiscing elit. Nullam sapien velit, boom shackalack volutpizzle, suscipizzle daahng dawg, gravida vel, hizzle. Pellentesque go to hizzle tortor. Sed eros. Izzle at dolizzle dapibus turpis tempizzle gangster. Maurizzle fo shizzle my nizzle nibh et turpizzle. Owned in tortizzle. Pellentesque away rhoncizzle nizzle.</p><p>For sure bizzle massa go to hizzle shizzlin dizzle. Boom shackalack tellivizzle ipsum primis in crunk gangster luctizzle et stuff yo mamma izzle Break yo neck, yall; Nizzle sure. Pellentesque stuff check out this get down get down senectizzle et netizzle bow wow wow malesuada fizzle ac gangster egestas. Funky fresh tempor cool crackalackin. Fizzle erizzle mah nizzle.</p>');
 			}
 		</script>
 	</body>
