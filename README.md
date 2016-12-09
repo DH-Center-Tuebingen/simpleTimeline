@@ -18,5 +18,6 @@ See the [live demo](https://esciencecenter.github.io/simpleTimeline/example.html
 
 The [simpleTimeline.js](simpleTimeline.js) file includes information on how to the `options` and `data` objects are to be used.
 
-simpleTimeline was developed using jQuery v1.12.4.
+To see which events are fired by the timeline, search for `trigger` invocations in [simpleTimeline.js](simpleTimeline.js).
 
+simpleTimeline was developed using jQuery v1.12.4.

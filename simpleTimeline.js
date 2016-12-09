@@ -66,7 +66,12 @@
 		// call refreshTimeline() afterwards
 		this.setTimelineData = function(data) {
 		// -------------------------------------------------------------------------------
-			this._timelineData = data;
+			this._timelineData = data;			
+			var dataMap = {}; // an id-data map for faster access
+			for(var i = data.length - 1; i >= 0 ; i--)
+				for(var d = data[i], j = d.length - 1; j >= 0; j--)
+					dataMap[d[j].id] = d[j];			
+			this._dataMap = dataMap;
 			return this;
 		};
 		
@@ -129,7 +134,7 @@
 		this.selectTimelineBar = function(bar) {
 		// -------------------------------------------------------------------------------
 			if(typeof bar === 'string')
-				bar = $('.timeline-bar[data-id="'+ bar +'"]');
+				bar = this.getTimelineBar(bar); 
 						
 			if(this._selectedBar && this._selectedBar.data('id') === bar.data('id'))
 				return this;
@@ -183,10 +188,7 @@
 		// -------------------------------------------------------------------------------
 		this.bindPopup = function(id, html) {
 		// -------------------------------------------------------------------------------			
-			var bar = this.getTimelineBar(id);
-			if(id === null)
-				return this;
-			bar.data('popup_html', html);
+			this._dataMap[id].popup_html = html;
 			return this;
 		}
 		
@@ -337,11 +339,11 @@
 					if(typeof datum.className !== 'undefined')
 						barDiv.addClass(datum.className);
 					
+					this._timelineBars[datum.id] = barDiv;
+					
 					barDiv.on('click', function(e) {
 						$(this).trigger('timeline:barclick', [ e ]);
 					});
-					
-					this._timelineBars[datum.id] = barDiv;
 				}	
 			}
 			
@@ -478,12 +480,10 @@
 		// -------------------------------------------------------------------------------
 		this._onBarClick = function(e, orig_event) {
 		// -------------------------------------------------------------------------------
-			console.log(e);
-			self.closePopup();
-			
+			self.closePopup();			
 			var bar = $(e.target);
-			var html = bar.data('popup_html');
-			if(typeof html === 'undefined') 
+			var clicked_data = self._dataMap[bar.data('id')];
+			if(typeof clicked_data === 'undefined' || typeof clicked_data['popup_html'] === 'undefined' || clicked_data['popup_html'] === '') 
 				return;
 			
 			// create popup window
@@ -494,7 +494,7 @@
 				})
 			).append(
 				$('<div/>').addClass('timeline-popup-content-wrapper').append(
-					$('<div/>').addClass('timeline-popup-content').html(html)
+					$('<div/>').addClass('timeline-popup-content').html(clicked_data.popup_html)
 				)
 			).append(
 				$('<div/>').addClass('timeline-popup-tip-container').append(
@@ -502,15 +502,22 @@
 				)
 			);
 			
+			// show and position at mouse pointer
 			$('body').append(popup);
-			
 			var pos = {				
       			top: orig_event.pageY - popup.outerHeight() + 5, 
       			left: orig_event.pageX - popup.outerWidth() / 2 // + 3
-			};			
+			};
+			pos.top = Math.max(0, pos.top);
+			
+			if(pos.left < 0) {
+				popup.find('.timeline-popup-tip-container').css({ 'margin-left': orig_event.pageX - 19 });
+				pos.left = 0;
+			}
+			
 			popup.css(pos);
 			
-			// trigger an event to celebrate the open popup
+			// trigger an event to celebrate the opened popup
 			self.trigger('timeline:popup-open', [
 				orig_event, // 1st extra param: original jQuery click event
 				popup, 		// 2nd extra param: the popup div object

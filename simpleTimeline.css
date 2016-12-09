@@ -93,21 +93,26 @@
 .timeline-popup {
 	position: absolute;
 	text-align: center;
+	z-index: 99999;
 }
 
 .timeline-popup-content-wrapper {
 	padding: 1px;
 	text-align: left;
-	border-radius: 12px;
+	border-radius: 12px;	
 }
 
 .timeline-popup-content {
-	margin: 1em 1em;
+	margin: 19px 0 .75em 0;
+	padding: 0 1em 0 1em;
 	line-height: 1.4;
+	max-width: 420px;
+	max-height: 420px;
+	overflow: auto;
 }
 
 .timeline-popup-content p {
-	margin: 18px 0;
+	margin: .5em 0;
 }
 
 .timeline-popup-tip-container {
