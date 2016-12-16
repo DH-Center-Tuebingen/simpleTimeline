@@ -508,11 +508,15 @@
       			top: orig_event.pageY - popup.outerHeight() + 5, 
       			left: orig_event.pageX - popup.outerWidth() / 2 // + 3
 			};
-			pos.top = Math.max(0, pos.top);
 			
 			if(pos.left < 0) {
 				popup.find('.timeline-popup-tip-container').css({ 'margin-left': orig_event.pageX - 19 });
 				pos.left = 0;
+			}
+			
+			if(pos.top < 0) {
+				popup.find('.timeline-popup-tip-container').hide();
+				pos.top = 0;
 			}
 			
 			popup.css(pos);
